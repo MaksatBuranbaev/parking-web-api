@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using ParkingWebApi.Data;
 using ParkingWebApi.Models.Dto;
 using ParkingWebApi.Models.Enteties;
+using ParkingWebApi.Services;
 
 namespace ParkingWebApi.Controllers
 {
@@ -11,30 +12,24 @@ namespace ParkingWebApi.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private readonly AppDbContext _context;
-        public UsersController(AppDbContext context)
+        private readonly IUserService _userService;
+        public UsersController(IUserService userService)
         {
-            _context = context;
+            _userService = userService;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
-            return await _context.Users
-                .ToListAsync();
+            var result = await _userService.GetUsersAsync();
+
+            return Ok(result);
         }
 
         [HttpPost]
         public async Task<ActionResult<User>> PostUser(UserDto dto)
         {
-            var user = new User()
-            {
-                Id = new Guid(),
-                Name = dto.Name
-            };
-
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
+            var user = await _userService.PostUserAsync(dto);
 
             return CreatedAtAction("PostUser", user);
         }
@@ -42,14 +37,12 @@ namespace ParkingWebApi.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(Guid id)
         {
-            var user = await _context.Users.FindAsync(id);
-            if (user == null)
+            var result = await _userService.DeleteUserAsync(id);
+
+            if (!result) 
             {
                 return NotFound();
             }
-
-            _context.Users.Remove(user);
-            await _context.SaveChangesAsync();
 
             return NoContent();
         }

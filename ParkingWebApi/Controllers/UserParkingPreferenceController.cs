@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using ParkingWebApi.Data;
 using ParkingWebApi.Models.Dto;
 using ParkingWebApi.Models.Enteties;
+using ParkingWebApi.Services;
 
 namespace ParkingWebApi.Controllers
 {
@@ -10,25 +11,16 @@ namespace ParkingWebApi.Controllers
     [ApiController]
     public class UserParkingPreferenceController : ControllerBase
     {
-        private readonly AppDbContext _context;
-        public UserParkingPreferenceController(AppDbContext context)
+        private readonly IUserParkingPreferenceService _userParkingPreferenceService;
+        public UserParkingPreferenceController(IUserParkingPreferenceService userParkingPreferenceService)
         {
-            _context = context;
+            _userParkingPreferenceService = userParkingPreferenceService;
         }
 
         [HttpPost]
         public async Task<IActionResult> PostPrefenceParkingSpace(UserParkingPreferenceDto dto)
         {
-            var upp = new UserParkingPreference()
-            {
-                Id = new Guid(),
-                UserId = dto.UserId,
-                ParkingSpaceId = dto.ParkingSpaceId,
-                Preference_Level = dto.Preference_Level
-            };
-
-            _context.UserParkingPreferences.Add(upp);
-            await _context.SaveChangesAsync();
+            var upp = await _userParkingPreferenceService.PostPrefenceParkingSpaceAsync(dto);
 
             return CreatedAtAction("PostPrefenceParkingSpace", upp);
         }
@@ -36,9 +28,7 @@ namespace ParkingWebApi.Controllers
         [HttpGet("Favorites/{id}")]
         public async Task<ActionResult<IEnumerable<User>>> GetFavorites(Guid id)
         {
-            var favorites = await _context.UserParkingPreferences
-                .Where(u => u.UserId == id && u.Preference_Level > 0)
-                .ToListAsync();
+            var favorites = await _userParkingPreferenceService.GetFavoritesAsync(id);
             
             return Ok(favorites);
         }
@@ -46,20 +36,15 @@ namespace ParkingWebApi.Controllers
         [HttpGet("Unfavorites/{id}")]
         public async Task<ActionResult<IEnumerable<User>>> GetUnfavorites(Guid id)
         {
-            var favorites = await _context.UserParkingPreferences
-                .Where(u => u.UserId == id && u.Preference_Level <= 0)
-                .ToListAsync();
+            var favorites = await _userParkingPreferenceService.GetUnfavoritesAsync(id);
 
             return Ok(favorites);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<IEnumerable<User>>> Get(Guid id)
+        public async Task<ActionResult<IEnumerable<User>>> GetPreferenceParkingSpace(Guid id)
         {
-            var favorite = await _context.UserParkingPreferences
-                .Where(u => u.UserId == id && u.Preference_Level >= 0)
-                .OrderByDescending(u => u.Preference_Level)
-                .FirstOrDefaultAsync();
+            var favorite = await _userParkingPreferenceService.GetPreferenceParkingSpaceAsync(id);
 
             if (favorite == null)
             {
@@ -72,14 +57,11 @@ namespace ParkingWebApi.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUserParkingPreference(Guid id)
         {
-            var upp = await _context.UserParkingPreferences.FindAsync(id);
-            if (upp == null)
+            var result = await _userParkingPreferenceService.DeleteUserParkingPreferenceAsync(id);
+            if (!result)
             {
                 return NotFound();
             }
-
-            _context.UserParkingPreferences.Remove(upp);
-            await _context.SaveChangesAsync();
 
             return NoContent();
         }

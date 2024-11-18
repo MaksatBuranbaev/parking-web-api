@@ -1,6 +1,4 @@
-﻿using ParkingWebApi.Models.Enteties;
-
-namespace ParkingWebApi.Models.Enteties
+﻿namespace ParkingWebApi.Models.Enteties
 {
     public class OrderHistory
     {
