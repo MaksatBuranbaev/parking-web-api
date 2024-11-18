@@ -7,6 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddTransient<IParkingSpaceService, ParkingSpaceService>();
+builder.Services.AddTransient<IOrderService, OrderService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
