@@ -1,8 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using ParkingWebApi.Data;
+using ParkingWebApi.Services;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddTransient<IUserService, UserService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
