@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using ParkingWebApi.Data;
 using ParkingWebApi.Models.Dto;
 using ParkingWebApi.Models.Enteties;
+using ParkingWebApi.Services;
 using System.Xml.Linq;
 
 namespace ParkingWebApi.Controllers
@@ -11,35 +12,32 @@ namespace ParkingWebApi.Controllers
     [ApiController]
     public class ParkingSpacesController : ControllerBase
     {
-        private readonly AppDbContext _context;
-        public ParkingSpacesController(AppDbContext context)
+        private readonly IParkingSpaceService _parkingSpaceService;
+        public ParkingSpacesController(IParkingSpaceService parkingSpaceService)
         {
-            _context = context;
+            _parkingSpaceService = parkingSpaceService;
         }
 
         [HttpGet("Free")]
         public async Task<ActionResult<IEnumerable<ParkingSpace>>> GetFree()
         {
-            return await _context.ParkingSpaces
-                .Where(p => p.IsFree)
-                .ToListAsync();
+            var result = await _parkingSpaceService.GetFreeAsync();
+
+            return Ok(result);
         }
 
         [HttpGet("Occupied")]
         public async Task<ActionResult<IEnumerable<ParkingSpace>>> GetOccupied()
         {
-            return await _context.ParkingSpaces
-                .Where(p => p.IsFree == false)
-                .ToListAsync();
+            var result = await _parkingSpaceService.GetOccupiedAsync();
+
+            return Ok(result); ;
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<IEnumerable<ParkingSpace>>> GetDescription(Guid id)
         {
-            var description = await _context.ParkingSpaces
-                .Where(p => p.Id == id)
-                .Select(p => p.Description)
-                .ToListAsync();
+            var description = await _parkingSpaceService.GetDescriptionAsync(id);
 
             return Ok(description);
         }
@@ -47,15 +45,7 @@ namespace ParkingWebApi.Controllers
         [HttpPost]
         public async Task<ActionResult<ParkingSpace>> PostParkingSpace(ParkingSpaceDto dto)
         {
-            var parkingSpace = new ParkingSpace()
-            {
-                Id = new Guid(),
-                Name = dto.Name,
-                Description = dto.Description
-            };
-
-            _context.ParkingSpaces.Add(parkingSpace);
-            await _context.SaveChangesAsync();
+            var parkingSpace = await _parkingSpaceService.PostParkingSpaceAsync(dto);
 
             return CreatedAtAction("PostParkingSpace", parkingSpace);
         }
@@ -63,14 +53,11 @@ namespace ParkingWebApi.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteParkingSpace(Guid id)
         {
-            var parkingSpace = await _context.ParkingSpaces.FindAsync(id);
-            if (parkingSpace == null)
+            var result = await _parkingSpaceService.DeleteParkingSpaceAsync(id);
+            if (!result)
             {
                 return NotFound();
             }
-
-            _context.ParkingSpaces.Remove(parkingSpace);
-            await _context.SaveChangesAsync();
 
             return NoContent();
         }
