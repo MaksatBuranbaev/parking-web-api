@@ -26,6 +26,23 @@ namespace ParkingWebApi.Controllers
             return Ok(result);
         }
 
+        [HttpGet("{id}")]
+        public async Task<ActionResult<IEnumerable<User>>> GetUserById(Guid id)
+        {
+            var result = await _userService.GetUserByIdAsync(id);
+
+            return Ok(result);
+        }
+
+        [HttpGet("{firstName} {lastName}")]
+        public async Task<ActionResult<IEnumerable<User>>> GeUsersByName(string firstName, string lastName)
+        {
+            var result = await _userService.GetUsersByNameAsync(firstName, lastName);
+
+            return Ok(result);
+
+        }
+
         [HttpPost]
         public async Task<ActionResult<User>> PostUser(UserDto dto)
         {
@@ -43,6 +60,22 @@ namespace ParkingWebApi.Controllers
             {
                 return NotFound();
             }
+
+            return NoContent();
+        }
+
+        [HttpPatch("{id}/position")]
+        public async Task<IActionResult> PatchUserPosition(Guid id, string position)
+        {
+            await _userService.PatchUserPositionAsync(id, position);
+
+            return NoContent();
+        }
+
+        [HttpPatch("{id}/city")]
+        public async Task<IActionResult> PatchUserCity(Guid id, string city)
+        {
+            await _userService.PatchUserCityAsync(id, city);
 
             return NoContent();
         }

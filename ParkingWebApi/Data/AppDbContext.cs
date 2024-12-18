@@ -14,5 +14,6 @@ namespace ParkingWebApi.Data
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderHistory> OrdersHistory { get; set; }
         public DbSet<UserParkingPreference> UserParkingPreferences { get; set; }
+        public DbSet<Parking> Parkings { get; set; }
     }
 }
