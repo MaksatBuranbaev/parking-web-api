@@ -9,6 +9,7 @@ builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddTransient<IParkingSpaceService, ParkingSpaceService>();
 builder.Services.AddTransient<IOrderService, OrderService>();
 builder.Services.AddTransient<IUserParkingPreferenceService, UserParkingPreferenceService>();
+builder.Services.AddTransient<IParkingService, ParkingService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
