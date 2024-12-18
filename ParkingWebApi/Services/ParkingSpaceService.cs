@@ -47,7 +47,9 @@ namespace ParkingWebApi.Services
             {
                 Id = new Guid(),
                 Name = dto.Name,
-                Description = dto.Description
+                Description = dto.Description,
+                Floor = dto.Floor,
+                ParkingId = dto.ParkingId
             };
 
             _context.ParkingSpaces.Add(parkingSpace);
